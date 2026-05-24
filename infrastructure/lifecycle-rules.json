@@ -1,0 +1,34 @@
+{
+  "Rules": [
+    {
+      "ID": "RawDataRetention",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "raw/"
+      },
+      "Expiration": {
+        "Days": 90
+      }
+    },
+    {
+      "ID": "ProcessedDataRetention",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "processed/"
+      },
+      "Expiration": {
+        "Days": 365
+      }
+    },
+    {
+      "ID": "AbortIncompleteUploads",
+      "Status": "Enabled",
+      "Filter": {
+        "Prefix": "raw/"
+      },
+      "AbortIncompleteMultipartUpload": {
+        "DaysAfterInitiation": 7
+      }
+    }
+  ]
+}

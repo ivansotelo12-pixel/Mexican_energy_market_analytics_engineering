@@ -6,6 +6,10 @@ This comprehensive plan provides a roadmap for building a world-class Reinforcem
 ## Project Overview
 Objective: Build a comprehensive Reinforcement Learning-based hedging strategy system for the Mexican energy market using AWS cloud infrastructure, enabling data-driven decision making for power contract negotiations and portfolio allocation strategies.
 
+### Goals:
+
+##### 1. Data Lake in AWS. 
+
 ### Phase 1: Research and Data Sources Enhancement
 #### 1.1 Enhanced Data Sources Discovery
  
@@ -19,22 +23,41 @@ AWS SageMaker RL Energy Examples: Found reference implementations for energy arb
 International Energy Data: Incorporate API data from ERCOT, CAISO for comparative analysis
 
 #### 1.2 CENACE API Integration Strategy
-Primary Endpoint: https://ws01.cenace.gob.mx:8082/SWPML/SIM/
+Primary Endpoint: https://ws01.cenace.gob.mx:8082/SWPML/SIM/{parameters}
 Data Formats: XML/JSON support
-Key Parameters: sistema (SIN/BCA/BCS), proceso (MDA/MTR), lista_nodos, date ranges
+Key Parameters: sistema (SIN), proceso (MDA), lista_nodos, date ranges
 Data Components: PML, PML_energia, PML_perdidas, PML_congestion
+
+
+Elemento de la URL Descripción:  Obligatorio / Opcional
+sistema Sistema Interconectado [SIN, BCA o BCS]: Obligatorio
+proceso Proceso [MDA]: Obligatorio
+lista_nodos List de NodosP: Obligatorio
+anio_ini Año Inicial del periodo: Formato AAAA Obligatorio
+mes_ini Mes Inicial del periodo: Formato MM Obligatorio
+dia_ini Dia Inicial del periodo: Formato DD Obligatorio
+anio_fin Año Final del periodo: Formato AAAA Obligatorio
+mes_fin Mes Final del periodo: Formato MM Obligatorio
+dia_fin Dia Final del periodo: Formato DD Obligatorio
+formato Formato de salida [JSON]: Opcional
+
+Examples:
+
+https://ws01.cenace.gob.mx:8082/SWPML/SIM/SIN/MDA/03CHI-115/2026/03/21/2026/03/27/JSON
+
 
 
 ### Phase 2: Architecture Design
 ##### 2.1 AWS Services Selection
 Core Infrastructure:
 
-Data Lake: AWS S3 with proper partitioning (by date/sistema/nodo)
+Data Lake: AWS S3 with proper partitioning (by date/nodo)
 Data Warehouse: Amazon Redshift (best for ML/RL workloads and dbt integration)
 Orchestration: AWS MWAA (Managed Airflow) for monthly training cycles
 ML Platform: Amazon SageMaker for AutoML and custom RL models
 Compute: EC2 instances with GPU support for RL training
 Database: Amazon RDS PostgreSQL for metadata and dbt transformations
+
 Supporting Services:
 
 API Gateway: For secure CENACE data access
@@ -47,6 +70,8 @@ IAM: For security and access management
 CENACE API → API Gateway → Lambda → S3 (Raw) → Glue ETL → S3 (Processed) 
                                                     ↓
                                             Redshift (DWH) ← dbt Transformations
+
+                                            
 ### Phase 3: Component Development Plan
 ##### 3.1 Data Ingestion Component (Weeks 1-3)
 Monolithic Script: cenace_data_ingestion.py
@@ -59,7 +84,7 @@ Key Functions:
 AWS Implementation:
 
 Lambda Function: For daily ingestion triggers
-S3 Structure: raw/pml/{year}/{month}/{day}/{sistema}/
+S3 Structure: raw/pml/{year}/{month}/{day}
 Data Formats: Parquet for efficient ML loading
 Error Handling: SNS notifications for failures
 
