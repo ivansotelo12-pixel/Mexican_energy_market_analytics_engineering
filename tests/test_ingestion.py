@@ -26,9 +26,9 @@ class TestConfig:
     
     def test_format_cenace_date(self):
         """Test date formatting for CENACE API."""
-        dt = datetime(2026, 3, 28)
+        dt = datetime(2026, 5, 28)
         result = format_cenace_date(dt)
-        assert result == "2026/03/28"
+        assert result == "2026/05/28"
     
     def test_get_date_range_default(self):
         """Test default 7-day lookback."""
@@ -44,15 +44,15 @@ class TestConfig:
     
     def test_build_cenace_url(self):
         """Test CENACE URL construction."""
-        start = datetime(2026, 3, 21)
-        end = datetime(2026, 3, 28)
+        start = datetime(2026, 5, 21)
+        end = datetime(2026, 5, 28)
         url = build_cenace_url("03CHI-115", start, end)
         
         assert "03CHI-115" in url
         assert "SIN" in url
         assert "MDA" in url
-        assert "2026/03/21" in url
-        assert "2026/03/28" in url
+        assert "2026/05/21" in url
+        assert "2026/05/28" in url
 
 
 # =============================================================================
@@ -65,7 +65,7 @@ class TestDataValidator:
         """Test validation of a valid PML record."""
         record = {
             "nodo": "03CHI-115",
-            "fecha": "2026-03-28",
+            "fecha": "2026-05-28",
             "pml": 1500.50,
             "pml_energia": 1400.00,
             "pml_perdidas": 50.25,
@@ -79,7 +79,7 @@ class TestDataValidator:
         """Test validation fails for missing required field."""
         record = {
             "nodo": "03CHI-115",
-            "fecha": "2026-03-28",
+            "fecha": "2026-05-28",
             "pml": 1500.50,
             # Missing pml_energia, pml_perdidas, pml_congestion
         }
@@ -91,7 +91,7 @@ class TestDataValidator:
         """Test validation fails for out-of-range PML value."""
         record = {
             "nodo": "03CHI-115",
-            "fecha": "2026-03-28",
+            "fecha": "2026-05-28",
             "pml": 60000,  # Above max of 50000
             "pml_energia": 1400.00,
             "pml_perdidas": 50.25,
@@ -105,7 +105,7 @@ class TestDataValidator:
         """Test validation fails for invalid date format."""
         record = {
             "nodo": "03CHI-115",
-            "fecha": "28-03-2026",  # Wrong format
+            "fecha": "28-05-2026",  # Wrong format
             "pml": 1500.50,
             "pml_energia": 1400.00,
             "pml_perdidas": 50.25,
@@ -119,7 +119,7 @@ class TestDataValidator:
         """Test validation fails for invalid nodo format."""
         record = {
             "nodo": "INVALID",
-            "fecha": "2026-03-28",
+            "fecha": "2026-05-28",
             "pml": 1500.50,
             "pml_energia": 1400.00,
             "pml_perdidas": 50.25,
@@ -134,7 +134,7 @@ class TestDataValidator:
         records = [
             {
                 "nodo": "03CHI-115",
-                "fecha": "2026-03-28",
+                "fecha": "2026-05-28",
                 "pml": 1500.50,
                 "pml_energia": 1400.00,
                 "pml_perdidas": 50.25,
@@ -281,19 +281,23 @@ class TestCenaceClient:
 class TestS3Manager:
     """Tests for S3 operations."""
     
-    def test_build_s3_key_with_datetime(self):
+    @patch("src.ingestion.s3_manager.boto3.client")
+    def test_build_s3_key_with_datetime(self, mock_boto):
         """Test S3 key building with datetime object."""
+        mock_boto.return_value = MagicMock()
         manager = S3Manager(bucket="test-bucket")
         dt = datetime(2026, 3, 28)
         key = manager._build_s3_key("03CHI-115", dt)
-        
+
         assert "raw/pml/2026/03/28/03CHI-115/data.parquet" in key
-    
-    def test_build_s3_key_with_string_date(self):
+
+    @patch("src.ingestion.s3_manager.boto3.client")
+    def test_build_s3_key_with_string_date(self, mock_boto):
         """Test S3 key building with string date."""
+        mock_boto.return_value = MagicMock()
         manager = S3Manager(bucket="test-bucket")
         key = manager._build_s3_key("03CHI-115", "2026-03-28")
-        
+
         assert "raw/pml/2026/03/28/03CHI-115/data.parquet" in key
     
     @patch("src.ingestion.s3_manager.boto3.client")

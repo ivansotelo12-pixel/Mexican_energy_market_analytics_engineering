@@ -2,7 +2,7 @@
 """Configuration constants for CENACE data ingestion."""
 
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 # =============================================================================
 # CENACE API Configuration
@@ -60,7 +60,7 @@ def get_date_range(days: int = LOOKBACK_DAYS) -> tuple[datetime, datetime]:
     Returns:
         Tuple of (start_date, end_date) for the last N days.
     """
-    end_date = datetime.utcnow()
+    end_date = datetime.now(timezone.utc)
     start_date = end_date - timedelta(days=days)
     return start_date, end_date
 

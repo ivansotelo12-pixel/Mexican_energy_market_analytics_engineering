@@ -8,7 +8,7 @@ that ingests daily PML data from CENACE.
 import json
 import logging
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from src.ingestion.cenace_client import CenaceAPIClient
@@ -34,7 +34,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
     Returns:
         Dictionary with status and details of the ingestion
     """
-    start_time = datetime.utcnow()
+    start_time = datetime.now(timezone.utc)
     logger.info("Starting CENACE PML data ingestion Lambda")
     
     # Configuration
@@ -126,7 +126,7 @@ def lambda_handler(event: dict[str, Any], context: Any) -> dict[str, Any]:
             results["errors"].append(f"{nodo}: {str(e)}")
     
     # Calculate duration
-    end_time = datetime.utcnow()
+    end_time = datetime.now(timezone.utc)
     duration = (end_time - start_time).total_seconds()
     
     # Final status

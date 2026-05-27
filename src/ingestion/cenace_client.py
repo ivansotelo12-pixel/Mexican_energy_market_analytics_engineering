@@ -3,7 +3,7 @@
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import requests
@@ -95,7 +95,7 @@ class CenaceAPIClient:
                 "pml_energia": item.get("pml_energia"),
                 "pml_perdidas": item.get("pml_perdidas"),
                 "pml_congestion": item.get("pml_congestion"),
-                "timestamp": datetime.utcnow().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             }
             records.append(record)
         
